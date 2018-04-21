@@ -63,8 +63,38 @@ def trainTestSplit(exFile, testSize):
     trainSet = fl[testSize:]
     return trainSet, testSet
 
-def translateExamples(w2i, trainingPos, trainingNeg, testPos, testNeg):
-    pass
+def countFreqs(w2i, pos, neg, x, y):
+    count = 0
+    for pEx, nEx in zip(pos, neg):
+        posLine = pEx.split(' ')
+        for token in posLine:
+            if token in w2i:
+                x[count][w2i[token]] += 1
+            else:
+                pass
+        y[count] = 1
+        count+=1
+        negLine = nEx.split(' ')
+        for token in negLine:
+            if token in w2i:
+                x[count][w2i[token]] += 1
+            else:
+                pass
+        y[count] = 0
+        count += 1
+    return x, y
+
+def translateExamplesRT(w2i, trainingPos, trainingNeg, testPos, testNeg):
+    # Initialize numpy arrays for training and test
+    training_x = np.zeros((len(trainingPos)+len(trainingNeg), len(w2i)))
+    training_y = np.zeros(len(trainingPos)+len(trainingNeg))
+    test_x = np.zeros((len(testPos)+len(testNeg), len(w2i)))
+    test_y = np.zeros(len(testPos)+len(testNeg))
+    count = 0
+    # Fill out the training arrays with frequencies
+    training_x, training_y = countFreqs(w2i, trainingPos, trainingNeg, training_x, training_y)
+    test_x, test_y = countFreqs(w2i, testPos, testNeg, test_x, test_y)
+    return training_x, training_y, test_x, test_y
 
 if __name__ == '__main__':
     pass
