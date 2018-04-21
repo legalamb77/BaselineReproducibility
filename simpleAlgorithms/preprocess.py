@@ -1,18 +1,11 @@
 '''
 @author Theodore Morley
-Goals:
-    -Separate into train and test sets
-        -Paper uses 10% validation, 10% test, 80% training for RT
-        -So just seperate 10% from pos and neg into a test set
-    #-Optional: If specified, remove stops and punctuation
-    -Make list of remaining training words
-    #-Use word2Ix approach to specify vector length
-    #-Just ignore words that are not in the training data
-    -Next translate each of the documents into np arrays using the w2ix
 '''
+
 from nltk.corpus import stopwords
 from random import shuffle
 import string
+import sys
 import numpy as np
 
 stops = set(stopwords.words('english'))
@@ -47,7 +40,7 @@ def getVocab(trainingPos, trainingNeg):
     strPos = ' '.join(trainingPos)
     strNeg = ' '.join(trainingNeg)
     posUniqueWords = set(strPos.split(' '))
-    negUniqueWords = set(negUniqueWords.split(' '))
+    negUniqueWords = set(strNeg.split(' '))
     return posUniqueWords.union(negUniqueWords)
 
 '''
@@ -97,4 +90,22 @@ def translateExamplesRT(w2i, trainingPos, trainingNeg, testPos, testNeg):
     return training_x, training_y, test_x, test_y
 
 if __name__ == '__main__':
-    pass
+    print('Please input the names/paths of the positive and negative files, space seperated: ')
+    paths = sys.stdin.readline()
+    paths = paths.strip()
+    paths = paths.split(' ')
+    # Get the train-test split
+    posTrain, posTest = trainTestSplit(paths[0], 533)
+    negTrain, negTest = trainTestSplit(paths[1], 533)
+    # Get the unique vocab from training
+    uniques = getVocab(posTrain, negTrain)
+    # Get the w2ix
+    w2x = word2ix(uniques, True, True)
+    # Translate the examples
+    tr_x, tr_y, ts_x, ts_y = translateExamplesRT(w2x, posTrain, negTrain, posTest, negTest)
+    # Save the arrays
+    np.save('training_x_RT', tr_x)
+    np.save('training_y_RT', tr_y)
+    np.save('test_x_RT', ts_x)
+    np.save('test_y_RT', ts_y)
+    print('Translation complete.')
