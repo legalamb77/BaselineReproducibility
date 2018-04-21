@@ -96,36 +96,49 @@ def termFrequencyNormalize(data):
             data[row][col] = data[row][col]/np.sum(data[row])
     return data
 
-def fillSeqs(w2i, pos, neg, x, y):
+def fillSeqs(w2i, pos, neg, y):
     count = 0
+    x = []
     for pEx, nEx in zip(pos, neg):
         posLine = pEx.split(' ')
+        newLine = []
         for i in range(len(posLine)):
             if posLine[i] in w2i:
-                x[count][i] = w2i[posLine[i]]
+                # Adding one reserves 0 as the UNK token
+                newLine.append(w2i[posLine[i]]+1)
             else:
                 pass
+        x.append(newLine)
         y[count] = 1
         count += 1
+        newLine = []
         negLine = nEx.split(' ')
         for i in range(len(negLine)):
             if negLine[i] in w2i:
-                x[count][i] = w2i[negLine[i]]
+                newLine.append(w2i[negLine[i]]+1)
             else:
                 pass
+        x.append(newLine)
         y[count] = 0
         count += 1
-    return x, y
+    return np.array(x), y
 
 
-def sequenceTranslation(w2i, trainingPos, trainingNeg, testPos, testNeg, maxlen):
-    training_x = np.zeros((len(trainingPos)+len(trainingNeg), maxlen))
-    training_y = np.zeros((len(trainingPos)+len(trainingNeg), maxlen))
-    test_x = np.zeros((len(testPos)+len(testNeg), maxlen))
-    test_y = np.zeros((len(testPos)+len(testNeg), maxlen))
-    training_x, training_y = fillSeqs(w2i, trainingPos, trainingNeg, training_x, training_y)
-    test_x, test_y = fillSeqs(w2i, testPos, testNeg, test_x, test_y)
+def sequenceTranslation(w2i, trainingPos, trainingNeg, testPos, testNeg):
+    training_x = np.zeros((len(trainingPos)+len(trainingNeg)))
+    training_y = np.zeros((len(trainingPos)+len(trainingNeg)))
+    test_x = np.zeros((len(testPos)+len(testNeg)))
+    test_y = np.zeros((len(testPos)+len(testNeg)))
+    training_x, training_y = fillSeqs(w2i, trainingPos, trainingNeg, training_y)
+    test_x, test_y = fillSeqs(w2i, testPos, testNeg, test_y)
     return training_x, training_y, test_x, test_y
+
+def getMaxLen(examples, sofar):
+    for example in examples:
+        l = len(example.split(' '))
+        if l>sofar:
+            sofar = l
+    return sofar
 
 if __name__ == '__main__':
     print('Enter \'rt\' if you are processing the RT dataset, or \'imdb\' if you are processing the imdb dataset.')
@@ -157,7 +170,8 @@ if __name__ == '__main__':
             np.save('test_x_RT', ts_x)
             np.save('test_y_RT', ts_y)
         elif mode == 'lstm':
-            tr_x, tr_y, ts_x, ts_y = sequenceTranslation(w2x, posTrain, negTrain, posTest, negTest, 100)
+            maxsofar= getMaxLen(posTrain+negTrain+negTest+posTest, 1)
+            tr_x, tr_y, ts_x, ts_y = sequenceTranslation(w2x, posTrain, negTrain, posTest, negTest)
             np.save('training_x_RT_seq', tr_x)
             np.save('training_y_RT_seq', tr_y)
             np.save('test_x_RT_seq', ts_x)
