@@ -108,7 +108,7 @@ if __name__ == '__main__':
     # Get the unique vocab from training
     uniques = getVocab(posTrain, negTrain)
     # Get the w2ix
-    w2x = word2ix(uniques, True, True)
+    w2x = word2ix(uniques, False, True)
     # Translate the examples
     tr_x, tr_y, ts_x, ts_y = translateExamplesRT(w2x, posTrain, negTrain, posTest, negTest)
     #tr_x = termFrequencyNormalize(tr_x)
