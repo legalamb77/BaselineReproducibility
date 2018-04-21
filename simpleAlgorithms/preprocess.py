@@ -65,6 +65,7 @@ def countFreqs(w2i, pos, neg, x, y):
                 x[count][w2i[token]] += 1
             else:
                 pass
+        x[count] /= np.sum(x[count])
         y[count] = 1
         count+=1
         negLine = nEx.split(' ')
@@ -73,6 +74,7 @@ def countFreqs(w2i, pos, neg, x, y):
                 x[count][w2i[token]] += 1
             else:
                 pass
+        x[count] /= np.sum(x[count])
         y[count] = 0
         count += 1
     return x, y
@@ -89,8 +91,14 @@ def translateExamplesRT(w2i, trainingPos, trainingNeg, testPos, testNeg):
     test_x, test_y = countFreqs(w2i, testPos, testNeg, test_x, test_y)
     return training_x, training_y, test_x, test_y
 
+def termFrequencyNormalize(data):
+    for row in range(len(data)):
+        for col in range(len(data[row])):
+            data[row][col] = data[row][col]/np.sum(data[row])
+    return data
+
 if __name__ == '__main__':
-    print('Please input the names/paths of the positive and negative files, space seperated: ')
+    print('Please input the names/paths of the positive and negative files, space separated: ')
     paths = sys.stdin.readline()
     paths = paths.strip()
     paths = paths.split(' ')
@@ -100,9 +108,11 @@ if __name__ == '__main__':
     # Get the unique vocab from training
     uniques = getVocab(posTrain, negTrain)
     # Get the w2ix
-    w2x = word2ix(uniques, True, True)
+    w2x = word2ix(uniques, False, True)
     # Translate the examples
     tr_x, tr_y, ts_x, ts_y = translateExamplesRT(w2x, posTrain, negTrain, posTest, negTest)
+    #tr_x = termFrequencyNormalize(tr_x)
+    #ts_x = termFrequencyNormalize(ts_x)
     # Save the arrays
     np.save('training_x_RT', tr_x)
     np.save('training_y_RT', tr_y)
