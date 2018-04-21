@@ -11,6 +11,7 @@ Goals:
     -Next translate each of the documents into np arrays using the w2ix
 '''
 from nltk.corpus import stopwords
+from random import shuffle
 import string
 import numpy as np
 
@@ -50,11 +51,17 @@ def getVocab(trainingPos, trainingNeg):
     return posUniqueWords.union(negUniqueWords)
 
 '''
+Idea: Use this on both positive and negative files to get positive and negative test sets, then label them after translation
 Input:
-    file names for the unprocessed positive and negative examples
+    file names for the unprocessed examples
+    testSize: Integer size of the test set, in terms of examples
 '''
-def trainTestSplit(posFile, negFile):
-    pass
+def trainTestSplit(exFile, testSize):
+    fl = open(exFile).readlines()
+    shuffle(fl)
+    testSet = fl[:testSize]
+    trainSet = fl[testSize:]
+    return trainSet, testSet
 
 def translateExamples(w2i, trainingPos, trainingNeg, testPos, testNeg):
     pass
