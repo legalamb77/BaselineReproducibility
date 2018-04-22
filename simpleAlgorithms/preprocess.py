@@ -65,7 +65,7 @@ def countFreqs(w2i, pos, neg, x, y):
                 x[count][w2i[token]] += 1
             else:
                 pass
-        x[count] /= np.sum(x[count])
+        x[count] /= max(1, np.sum(x[count]))
         y[count] = 1
         count+=1
         negLine = nEx.split(' ')
@@ -74,7 +74,7 @@ def countFreqs(w2i, pos, neg, x, y):
                 x[count][w2i[token]] += 1
             else:
                 pass
-        x[count] /= np.sum(x[count])
+        x[count] /= max(1, np.sum(x[count]))
         y[count] = 0
         count += 1
     return x, y
@@ -155,7 +155,7 @@ if __name__ == '__main__':
         # Get the unique vocab from training
         uniques = getVocab(posTrain, negTrain)
         # Get the w2ix
-        w2x = word2ix(uniques, False, True)
+        w2x = word2ix(uniques, True, False)
         print('If you wish to translate to a sequence for LSTM input, please input \'lstm\', otherwise input \'standard\':')
         mode = sys.stdin.readline()
         mode = mode.strip()
